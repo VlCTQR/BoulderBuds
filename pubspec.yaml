@@ -13,7 +13,20 @@ dependencies:
     sdk: flutter
 
   cupertino_icons: ^1.0.2
+
+  #Firebase
+  firebase_auth: ^4.17.8
   firebase_core: ^2.27.0
+
+  #BLoC
+  flutter_bloc: ^8.1.5
+
+  #Custom Repository
+  user_repository: 
+    path: packages/user_repository
+
+  #Other
+  equatable: ^2.0.5
 
 dev_dependencies:
   flutter_test:
