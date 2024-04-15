@@ -56,7 +56,7 @@ class _SignInScreenState extends State<SignInScreen> {
                   child: MyTextField(
                       controller: emailController,
                       label: "Email",
-                      hintText: 'johndoe@mail.com',
+                      hintText: '',
                       obscureText: false,
                       keyboardType: TextInputType.emailAddress,
                       prefixIcon: const Icon(CupertinoIcons.mail_solid),
@@ -76,7 +76,7 @@ class _SignInScreenState extends State<SignInScreen> {
                   child: MyTextField(
                     label: "Password",
                     controller: passwordController,
-                    hintText: 'Password',
+                    hintText: '',
                     obscureText: obscurePassword,
                     keyboardType: TextInputType.visiblePassword,
                     prefixIcon: const Icon(CupertinoIcons.lock_fill),
@@ -120,7 +120,7 @@ class _SignInScreenState extends State<SignInScreen> {
                             style: TextButton.styleFrom(
                                 elevation: 3.0,
                                 backgroundColor:
-                                    Theme.of(context).colorScheme.secondary,
+                                    Theme.of(context).colorScheme.primary,
                                 foregroundColor: Colors.white,
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(60))),
