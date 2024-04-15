@@ -44,12 +44,12 @@ class _WelcomeScreenState extends State<WelcomeScreen>
               padding: const EdgeInsets.all(15),
               child: Column(
                 children: [
-                  const Text(
+                  Text(
                     "Welcome To Boulder Buds!",
                     style: TextStyle(
                       fontSize: 26,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black,
+                      color: Theme.of(context).colorScheme.onBackground,
                     ),
                   ),
                   const SizedBox(height: 20),

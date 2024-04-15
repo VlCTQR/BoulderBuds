@@ -6,3 +6,11 @@ RegExp passwordRexExp = RegExp(
 
 RegExp specialCharRexExp =
     RegExp(r'^(?=.*?[!@#$&*~`)\%\-(_+=;:,.<>/?"[{\]}\|^])');
+
+RegExp nameRegExp = RegExp(r'^[a-zA-Z\s]+$');
+
+RegExp boulderingGradeRegExp = RegExp(r'^[1-9][abc]?$');
+
+RegExp ageRegExp = RegExp(r'^[1-9][0-9]?$');
+
+RegExp ageSearchRegExp = RegExp(r'^(\d{1,2})\s*-\s*(\d{1,2})$');

@@ -24,9 +24,18 @@ dependencies:
   #Custom Repository
   user_repository: 
     path: packages/user_repository
+  gym_repository: 
+    path: packages/gym_repository
 
   #Other
   equatable: ^2.0.5
+  image_cropper: ^5.0.1
+  image_picker: ^1.0.7
+  firebase_storage: ^11.6.9
+  image: ^4.1.7
+  multi_dropdown: ^2.1.4
+  uuid: ^4.4.0
+  dropdown_search: ^5.0.6
 
 dev_dependencies:
   flutter_test:

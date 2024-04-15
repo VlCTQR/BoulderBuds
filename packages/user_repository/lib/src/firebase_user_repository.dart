@@ -1,9 +1,12 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:user_repository/src/entities/entities.dart';
 import 'package:user_repository/src/models/my_user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:image_picker/image_picker.dart';
 
 import 'user_repo.dart';
 
@@ -25,6 +28,18 @@ class FirebaseUserRepository implements UserRepository {
       final user = firebaseUser;
       return user;
     });
+  }
+
+  @override
+  Future<List<MyUser>> getMyUsers() {
+    try {
+      return usersCollection.get().then((value) => value.docs
+          .map((e) => MyUser.fromEntity(MyUserEntity.fromDocument(e.data())))
+          .toList());
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
   }
 
   @override
@@ -78,9 +93,10 @@ class FirebaseUserRepository implements UserRepository {
   }
 
   @override
-  Future<void> setUserData(MyUser user) async {
+  Future<MyUser> setUserData(MyUser user) async {
     try {
       await usersCollection.doc(user.id).set(user.toEntity().toDocument());
+      return user;
     } catch (e) {
       log(e.toString());
       rethrow;
@@ -92,6 +108,41 @@ class FirebaseUserRepository implements UserRepository {
     try {
       return usersCollection.doc(myUserId).get().then((value) =>
           MyUser.fromEntity(MyUserEntity.fromDocument(value.data()!)));
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
+  @override
+  Future<String> uploadPicture(String file, String userId) async {
+    try {
+      File imageFile = File(file);
+      Reference firebaseStoreRef =
+          FirebaseStorage.instance.ref().child('$userId/PP/${userId}_lead');
+      await firebaseStoreRef.putFile(
+        imageFile,
+      );
+      String url = await firebaseStoreRef.getDownloadURL();
+      await usersCollection.doc(userId).update({'picture': url});
+      return url;
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
+  @override
+  Future<String> uploadPictureWeb(XFile? pickedFile, String userId) async {
+    try {
+      Reference firebaseStoreRef =
+          FirebaseStorage.instance.ref().child('$userId/PP/${userId}_lead');
+      await firebaseStoreRef.putData(
+        await pickedFile!.readAsBytes(),
+      );
+      String url = await firebaseStoreRef.getDownloadURL();
+      await usersCollection.doc(userId).update({'picture': url});
+      return url;
     } catch (e) {
       log(e.toString());
       rethrow;

@@ -13,6 +13,7 @@ class MyTextField extends StatelessWidget {
   final String? errorMsg;
   final String? Function(String?)? onChanged;
   final String label;
+  final bool? enabled;
 
   const MyTextField(
       {super.key,
@@ -27,6 +28,7 @@ class MyTextField extends StatelessWidget {
       this.focusNode,
       this.errorMsg,
       this.onChanged,
+      this.enabled,
       required this.label});
 
   @override
@@ -38,10 +40,14 @@ class MyTextField extends StatelessWidget {
           padding: const EdgeInsets.all(5.0),
           child: Text(
             label,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            style: TextStyle(
+                fontSize: 16,
+                //fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onBackground),
           ),
         ),
         TextFormField(
+          enabled: enabled,
           validator: validator,
           controller: controller,
           obscureText: obscureText,
