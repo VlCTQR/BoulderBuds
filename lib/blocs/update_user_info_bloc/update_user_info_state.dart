@@ -34,3 +34,9 @@ class UploadUserDataSuccess extends UpdateUserInfoState {
   @override
   List<Object> get props => [myUser];
 }
+
+class DeleteUserLoading extends UpdateUserInfoState {}
+
+class DeleteUserSuccess extends UpdateUserInfoState {}
+
+class DeleteUserFailure extends UpdateUserInfoState {}

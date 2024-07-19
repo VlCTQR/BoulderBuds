@@ -53,123 +53,33 @@ class _HomeScreenState extends State<HomeScreen> {
                     if (state.status == MyUserStatus.success) {
                       return Row(
                         children: [
-                          state.user!.picture == ""
-                              ? GestureDetector(
-                                  onTap: () async {
-                                    if (!kIsWeb) {
-                                      final ImagePicker picker = ImagePicker();
-                                      final XFile? image =
-                                          await picker.pickImage(
-                                        source: ImageSource.gallery,
-                                        maxHeight: 500,
-                                        maxWidth: 500,
-                                        imageQuality: 40,
-                                      );
-                                      if (image != null) {
-                                        CroppedFile? croppedFile =
-                                            await ImageCropper().cropImage(
-                                          sourcePath: image.path,
-                                          aspectRatio: const CropAspectRatio(
-                                              ratioX: 1, ratioY: 1),
-                                          aspectRatioPresets: [
-                                            CropAspectRatioPreset.square
-                                          ],
-                                          uiSettings: [
-                                            AndroidUiSettings(
-                                                toolbarTitle: 'Cropper',
-                                                toolbarColor: Theme.of(context)
-                                                    .colorScheme
-                                                    .primary,
-                                                toolbarWidgetColor:
-                                                    Colors.white,
-                                                initAspectRatio:
-                                                    CropAspectRatioPreset
-                                                        .original,
-                                                lockAspectRatio: false),
-                                            IOSUiSettings(
-                                              title: 'Cropper',
-                                            ),
-                                            WebUiSettings(
-                                              context: context,
-                                              customDialogBuilder:
-                                                  (cropper, crop, rotate) {
-                                                return Dialog(
-                                                  child: Builder(
-                                                    builder: (context) {
-                                                      return Column(children: [
-                                                        SizedBox(
-                                                          width: MediaQuery.of(
-                                                                      context)
-                                                                  .size
-                                                                  .width *
-                                                              0.7,
-                                                          height: MediaQuery.of(
-                                                                      context)
-                                                                  .size
-                                                                  .height *
-                                                              0.7,
-                                                          child: cropper,
-                                                        ),
-                                                        ElevatedButton(
-                                                          onPressed: () async {
-                                                            /// it is important to call crop() function and return
-                                                            /// result data to plugin, for example:
-                                                            final result =
-                                                                await crop();
-                                                            Navigator.of(
-                                                                    context)
-                                                                .pop(result);
-                                                          },
-                                                          child: const Text(
-                                                              'Crop'),
-                                                        )
-                                                      ]);
-                                                    },
-                                                  ),
-                                                );
-                                              },
-                                            ),
-                                          ],
-                                        );
-                                        if (croppedFile != null) {
-                                          setState(() {
-                                            context
-                                                .read<UpdateUserInfoBloc>()
-                                                .add(UploadPicture(
-                                                    croppedFile.path,
-                                                    context
-                                                        .read<MyUserBloc>()
-                                                        .state
-                                                        .user!
-                                                        .id));
-                                          });
-                                        }
-                                      }
-                                    } else if (kIsWeb) {
-                                      final ImagePicker picker = ImagePicker();
-                                      final XFile? image =
-                                          await picker.pickImage(
-                                        source: ImageSource.gallery,
-                                        maxHeight: 500,
-                                        maxWidth: 500,
-                                        imageQuality: 40,
-                                      );
-                                      if (image != null) {
-                                        setState(() {
-                                          context
-                                              .read<UpdateUserInfoBloc>()
-                                              .add(UploadPictureWeb(
-                                                  image,
-                                                  context
-                                                      .read<MyUserBloc>()
-                                                      .state
-                                                      .user!
-                                                      .id));
-                                        });
-                                      }
-                                    }
-                                  },
-                                  child: Container(
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute<void>(
+                                  builder: (BuildContext context) =>
+                                      BlocProvider<UpdateUserInfoBloc>(
+                                    create: (context) => UpdateUserInfoBloc(
+                                        userRepository:
+                                            FirebaseUserRepository()),
+                                    child: BlocProvider(
+                                      create: (context) => SignInBloc(
+                                          userRepository:
+                                              FirebaseUserRepository()),
+                                      child: AccountSetupScreen(
+                                        title: "Your Profile",
+                                        myUser: state.user!,
+                                        userRepository:
+                                            FirebaseUserRepository(),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                            child: state.user!.picture == ""
+                                ? Container(
                                     width: 45,
                                     height: 45,
                                     decoration: BoxDecoration(
@@ -178,24 +88,25 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                     child: Icon(
                                       CupertinoIcons.person,
-                                      color: Colors.grey.shade400,
+                                      color: Colors.grey[800],
+                                      size: 25,
                                     ),
-                                  ),
-                                )
-                              : Container(
-                                  width: 45,
-                                  height: 45,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Colors.grey.shade300,
-                                    image: DecorationImage(
-                                      image: NetworkImage(
-                                        state.user!.picture!,
+                                  )
+                                : Container(
+                                    width: 45,
+                                    height: 45,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors.grey.shade300,
+                                      image: DecorationImage(
+                                        image: NetworkImage(
+                                          state.user!.picture!,
+                                        ),
+                                        fit: BoxFit.cover,
                                       ),
-                                      fit: BoxFit.cover,
                                     ),
                                   ),
-                                ),
+                          ),
                           const SizedBox(width: 10),
                           Text(
                             "Welcome ${state.user!.name.split(' ')[0].length > 10 ? state.user!.name.split(' ')[0].substring(0, 10) + '...' : state.user!.name.split(' ')[0]}",
@@ -209,40 +120,40 @@ class _HomeScreenState extends State<HomeScreen> {
                     return const CircularProgressIndicator();
                   },
                 ),
-                actions: [
-                  IconButton(
-                    onPressed: () {
-                      context.read<SignInBloc>().add(const SignOutRequired());
-                    },
-                    icon: Icon(
-                      CupertinoIcons.square_arrow_right,
-                      color: Theme.of(context).colorScheme.onBackground,
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute<void>(
-                          builder: (BuildContext context) =>
-                              BlocProvider<UpdateUserInfoBloc>(
-                            create: (context) => UpdateUserInfoBloc(
-                                userRepository: FirebaseUserRepository()),
-                            child: AccountSetupScreen(
-                              title: "Your Profile",
-                              myUser: state.user!,
-                              userRepository: FirebaseUserRepository(),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                    icon: Icon(
-                      Icons.settings,
-                      color: Theme.of(context).colorScheme.onBackground,
-                    ),
-                  ),
-                ],
+                // actions: [
+                //   IconButton(
+                //     onPressed: () {
+                //       context.read<SignInBloc>().add(const SignOutRequired());
+                //     },
+                //     icon: Icon(
+                //       CupertinoIcons.square_arrow_right,
+                //       color: Theme.of(context).colorScheme.onBackground,
+                //     ),
+                //   ),
+                //   IconButton(
+                //     onPressed: () {
+                //       Navigator.push(
+                //         context,
+                //         MaterialPageRoute<void>(
+                //           builder: (BuildContext context) =>
+                //               BlocProvider<UpdateUserInfoBloc>(
+                //             create: (context) => UpdateUserInfoBloc(
+                //                 userRepository: FirebaseUserRepository()),
+                //             child: AccountSetupScreen(
+                //               title: "Your Profile",
+                //               myUser: state.user!,
+                //               userRepository: FirebaseUserRepository(),
+                //             ),
+                //           ),
+                //         ),
+                //       );
+                //     },
+                //     icon: Icon(
+                //       Icons.settings,
+                //       color: Theme.of(context).colorScheme.onBackground,
+                //     ),
+                //   ),
+                // ],
               ),
               body: Column(
                 children: [
@@ -315,8 +226,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               return false;
                             }
 
-                            //Filter on gender
-                            if (!currentUser.searchGender!.contains('a')) {
+                            //Filter on gender Current User
+                            if (!currentUser.searchGender!.contains('a') &&
+                                currentUser.searchGender!.isNotEmpty) {
                               //If doesn't contain "All"
                               if (!currentUser
                                   .searchGender! //If user.gender not in searchGender list
@@ -325,7 +237,18 @@ class _HomeScreenState extends State<HomeScreen> {
                               }
                             }
 
-                            //Filter on age
+                            //Filter on gender User
+                            if (!user.searchGender!.contains('a') &&
+                                user.searchGender!.isNotEmpty) {
+                              //If doesn't contain "All"
+                              if (!user
+                                  .searchGender! //If currentUser.gender not in searchGender list
+                                  .contains(currentUser.gender)) {
+                                return false;
+                              }
+                            }
+
+                            //Filter on age Current User
                             if (currentUser.searchAgeLow != 0 &&
                                 currentUser.searchAgeHigh != 0) {
                               //If both zero -> all ages
@@ -339,13 +262,27 @@ class _HomeScreenState extends State<HomeScreen> {
                               }
                             }
 
+                            //Filter on age User
+                            if (user.searchAgeLow != 0 &&
+                                user.searchAgeHigh != 0) {
+                              //If both zero -> all ages
+                              if (user.searchAgeLow! > currentUser.age!) {
+                                //Als searchAgeLow groter is dan user.age | dus stel age range is 17-22 en user.age is 15 dan return false
+                                return false;
+                              }
+                              if (user.searchAgeHigh! < currentUser.age!) {
+                                //Als searchAgeHigh kleiner is dan user.age | dus stel age range is 17-22 en user.age is 23 dan return false
+                                return false;
+                              }
+                            }
+
                             // Converteer de grade van andere users naar int
                             int? userGrade =
                                 user.grade != null && user.grade!.isNotEmpty
                                     ? int.tryParse(user.grade![0])
                                     : null;
 
-                            // Filter op basis van grade
+                            // Filter op basis van grade Current User
                             // Als searchGradeLow en searchGradeHigh beide 0 zijn, accepteer dan alle grades
                             if (currentUser.searchGradeLow == 0 &&
                                 currentUser.searchGradeHigh == 0) {
@@ -360,6 +297,30 @@ class _HomeScreenState extends State<HomeScreen> {
                                     (userGrade == null ||
                                         userGrade >
                                             currentUser.searchGradeHigh!))) {
+                              return false;
+                            }
+
+                            // Converteer de grade van Current User naar int
+                            int? currentUserGrade = currentUser.grade != null &&
+                                    currentUser.grade!.isNotEmpty
+                                ? int.tryParse(currentUser.grade![0])
+                                : null;
+
+                            // Filter op basis van grade User
+                            // Als searchGradeLow en searchGradeHigh beide 0 zijn, accepteer dan alle grades
+                            if (user.searchGradeLow == 0 &&
+                                user.searchGradeHigh == 0) {
+                              return true;
+                            }
+
+                            if ((user.searchGradeLow != null &&
+                                    (currentUserGrade == null ||
+                                        currentUserGrade <
+                                            user.searchGradeLow!)) ||
+                                (user.searchGradeHigh != null &&
+                                    (currentUserGrade == null ||
+                                        currentUserGrade >
+                                            user.searchGradeHigh!))) {
                               return false;
                             }
 

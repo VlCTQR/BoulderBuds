@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class MyTextField extends StatelessWidget {
   final TextEditingController controller;
@@ -14,22 +15,29 @@ class MyTextField extends StatelessWidget {
   final String? Function(String?)? onChanged;
   final String label;
   final bool? enabled;
+  final bool? maxLinesEnabled;
+  final bool? minLinesEnabled;
+  final int? maxCharacters;
 
-  const MyTextField(
-      {super.key,
-      required this.controller,
-      required this.hintText,
-      required this.obscureText,
-      required this.keyboardType,
-      this.suffixIcon,
-      this.onTap,
-      this.prefixIcon,
-      this.validator,
-      this.focusNode,
-      this.errorMsg,
-      this.onChanged,
-      this.enabled,
-      required this.label});
+  const MyTextField({
+    super.key,
+    required this.controller,
+    required this.hintText,
+    required this.obscureText,
+    required this.keyboardType,
+    this.suffixIcon,
+    this.onTap,
+    this.prefixIcon,
+    this.validator,
+    this.focusNode,
+    this.errorMsg,
+    this.onChanged,
+    this.enabled,
+    required this.label,
+    this.maxLinesEnabled,
+    this.minLinesEnabled,
+    this.maxCharacters,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +55,24 @@ class MyTextField extends StatelessWidget {
           ),
         ),
         TextFormField(
+          maxLines: maxLinesEnabled == true ? null : 1,
+          minLines: minLinesEnabled == true ? 8 : null,
+          maxLength: maxCharacters,
+          maxLengthEnforcement: maxCharacters != null
+              ? MaxLengthEnforcement.enforced
+              : MaxLengthEnforcement.none,
           enabled: enabled,
+          buildCounter: maxCharacters != null
+              ? (BuildContext context,
+                  {int? currentLength, int? maxLength, bool? isFocused}) {
+                  return Text(
+                    '$currentLength/$maxLength',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onBackground,
+                    ),
+                  );
+                }
+              : null,
           validator: validator,
           controller: controller,
           obscureText: obscureText,

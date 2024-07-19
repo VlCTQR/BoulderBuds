@@ -35,3 +35,12 @@ class UpdateUserInfo extends UpdateUserInfoEvent {
   @override
   List<Object> get props => [myUser];
 }
+
+class DeleteUser extends UpdateUserInfoEvent {
+  final MyUser myUser;
+
+  const DeleteUser(this.myUser);
+
+  @override
+  List<Object> get props => [myUser];
+}

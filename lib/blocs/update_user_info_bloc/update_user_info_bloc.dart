@@ -44,5 +44,15 @@ class UpdateUserInfoBloc
         emit(UploadUserDataFailure());
       }
     });
+
+    on<DeleteUser>((event, emit) async {
+      emit(DeleteUserLoading());
+      try {
+        await _userRepository.deleteUser(event.myUser);
+        emit(DeleteUserSuccess());
+      } catch (e) {
+        emit(DeleteUserFailure());
+      }
+    });
   }
 }

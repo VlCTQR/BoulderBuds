@@ -16,6 +16,9 @@ class MyUserEntity extends Equatable {
   final List<String>? searchGender;
   final int? searchAgeLow;
   final int? searchAgeHigh;
+  final String? instagram;
+  final String? facebook;
+  final String? twitter;
 
   const MyUserEntity({
     required this.id,
@@ -32,6 +35,9 @@ class MyUserEntity extends Equatable {
     this.searchGender,
     this.searchAgeLow,
     this.searchAgeHigh,
+    this.instagram,
+    this.facebook,
+    this.twitter,
   });
 
   Map<String, Object?> toDocument() {
@@ -52,6 +58,9 @@ class MyUserEntity extends Equatable {
       'searchGender': searchGender,
       'searchAgeLow': searchAgeLow,
       'searchAgeHigh': searchAgeHigh,
+      'instagram': instagram,
+      'facebook': facebook,
+      'twitter': twitter,
     };
   }
 
@@ -77,6 +86,9 @@ class MyUserEntity extends Equatable {
       searchGender: searchGender,
       searchAgeLow: doc['searchAgeLow'] as int?,
       searchAgeHigh: doc['searchAgeHigh'] as int?,
+      instagram: doc['instagram'] as String?,
+      facebook: doc['facebook'] as String?,
+      twitter: doc['twitter'] as String?,
     );
   }
 
@@ -96,6 +108,9 @@ class MyUserEntity extends Equatable {
         searchGender,
         searchAgeLow,
         searchAgeHigh,
+        instagram,
+        facebook,
+        twitter,
       ];
 
   @override
@@ -114,6 +129,9 @@ class MyUserEntity extends Equatable {
       searchGender: ${searchGender.toString()}
       searchAgeLow: $searchAgeLow
       searchAgeHigh: $searchAgeHigh
+      instagam: $instagram
+      facebook: $facebook
+      twitter: $twitter
     }''';
   }
 }

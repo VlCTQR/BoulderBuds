@@ -17,6 +17,9 @@ class MyUser extends Equatable {
   List<String>? searchGender;
   int? searchAgeLow;
   int? searchAgeHigh;
+  String? instagram;
+  String? facebook;
+  String? twitter;
 
   MyUser({
     required this.id,
@@ -33,6 +36,9 @@ class MyUser extends Equatable {
     this.searchGender,
     this.searchAgeLow,
     this.searchAgeHigh,
+    this.instagram,
+    this.facebook,
+    this.twitter,
   });
 
   // Emtpy user which represents an unauthenticated user
@@ -51,6 +57,9 @@ class MyUser extends Equatable {
     searchGender: const [],
     searchAgeLow: 0,
     searchAgeHigh: 0,
+    instagram: '',
+    facebook: '',
+    twitter: '',
   );
 
   // Modify MyUser fields
@@ -69,6 +78,9 @@ class MyUser extends Equatable {
     List<String>? searchGender,
     int? searchAgeLow,
     int? searchAgeHigh,
+    String? instagram,
+    String? facebook,
+    String? twitter,
   }) {
     return MyUser(
       id: id ?? this.id,
@@ -85,6 +97,9 @@ class MyUser extends Equatable {
       searchGender: searchGender ?? this.searchGender,
       searchAgeLow: searchAgeLow ?? this.searchAgeLow,
       searchAgeHigh: searchAgeHigh ?? this.searchAgeHigh,
+      instagram: instagram ?? this.instagram,
+      facebook: facebook ?? this.facebook,
+      twitter: twitter ?? this.twitter,
     );
   }
 
@@ -108,6 +123,9 @@ class MyUser extends Equatable {
       searchGender: searchGender,
       searchAgeLow: searchAgeLow,
       searchAgeHigh: searchAgeHigh,
+      instagram: instagram,
+      facebook: facebook,
+      twitter: twitter,
     );
   }
 
@@ -127,6 +145,9 @@ class MyUser extends Equatable {
       searchGender: entity.searchGender,
       searchAgeLow: entity.searchAgeLow,
       searchAgeHigh: entity.searchAgeHigh,
+      instagram: entity.instagram,
+      facebook: entity.facebook,
+      twitter: entity.twitter,
     );
   }
 
@@ -146,5 +167,8 @@ class MyUser extends Equatable {
         searchGender,
         searchAgeLow,
         searchAgeHigh,
+        instagram,
+        facebook,
+        twitter,
       ];
 }

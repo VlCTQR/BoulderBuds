@@ -60,6 +60,19 @@ class FirebaseUserRepository implements UserRepository {
   }
 
   @override
+  Future<void> deleteUser(MyUser myUser) async {
+    try {
+      User? user = await _firebaseAuth.currentUser;
+      await user?.delete();
+
+      log("User ${myUser.id} successfully deleted.");
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
+  @override
   Future<void> signIn(String email, String password) async {
     try {
       await _firebaseAuth.signInWithEmailAndPassword(
