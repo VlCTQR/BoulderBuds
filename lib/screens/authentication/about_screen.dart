@@ -401,7 +401,10 @@ class _AboutScreenState extends State<AboutScreen> {
                       final user = filteredDemoUsers[index];
                       return IgnorePointer(
                         ignoring: true,
-                        child: UserWidget(myUser: user),
+                        child: UserWidget(
+                          myUser: user,
+                          currentUser: MyUser(id: "", email: "", name: ""),
+                        ),
                       );
                     },
                   ),

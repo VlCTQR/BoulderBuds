@@ -11,7 +11,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gym_repository/gym_repository.dart';
 
 class MyAppView extends StatelessWidget {
-  const MyAppView({super.key});
+  final int? homeScreenPageIndex;
+
+  const MyAppView({super.key, this.homeScreenPageIndex});
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +67,10 @@ class MyAppView extends StatelessWidget {
                         gymRepository: FirebaseGymRepository(),
                       )),
             ],
-            child: const HomeScreen(),
+            child: HomeScreen(
+              selectedIndex: homeScreenPageIndex ?? 0,
+              currentUserId: state.user!.uid,
+            ),
           );
         } else {
           return MultiBlocProvider(providers: [

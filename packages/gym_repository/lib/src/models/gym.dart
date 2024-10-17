@@ -10,7 +10,7 @@ class Gym extends Equatable {
     required this.name,
   });
 
-  // Emtpy Gym
+  // Empty Gym
   static final empty = Gym(
     gymId: '',
     name: '',
@@ -42,6 +42,13 @@ class Gym extends Equatable {
     return Gym(
       name: entity.name,
       gymId: entity.gymId,
+    );
+  }
+
+  static Gym fromMap(Map<String, dynamic> map) {
+    return Gym(
+      gymId: map['gymId'] ?? '',
+      name: map['name'] ?? '',
     );
   }
 

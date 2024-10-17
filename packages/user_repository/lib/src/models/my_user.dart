@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 import 'package:gym_repository/gym_repository.dart';
 import 'package:user_repository/src/entities/entities.dart';
@@ -20,6 +21,9 @@ class MyUser extends Equatable {
   String? instagram;
   String? facebook;
   String? twitter;
+  List<String>? buddies;
+  List<String>? incoming;
+  List<String>? outgoing;
 
   MyUser({
     required this.id,
@@ -39,9 +43,12 @@ class MyUser extends Equatable {
     this.instagram,
     this.facebook,
     this.twitter,
+    this.buddies,
+    this.incoming,
+    this.outgoing,
   });
 
-  // Emtpy user which represents an unauthenticated user
+  // Empty user which represents an unauthenticated user
   static final empty = MyUser(
     id: '',
     email: '',
@@ -60,6 +67,9 @@ class MyUser extends Equatable {
     instagram: '',
     facebook: '',
     twitter: '',
+    buddies: const [],
+    incoming: const [],
+    outgoing: const [],
   );
 
   // Modify MyUser fields
@@ -81,6 +91,9 @@ class MyUser extends Equatable {
     String? instagram,
     String? facebook,
     String? twitter,
+    List<String>? buddies,
+    List<String>? incoming,
+    List<String>? outgoing,
   }) {
     return MyUser(
       id: id ?? this.id,
@@ -100,12 +113,15 @@ class MyUser extends Equatable {
       instagram: instagram ?? this.instagram,
       facebook: facebook ?? this.facebook,
       twitter: twitter ?? this.twitter,
+      buddies: buddies ?? this.buddies,
+      incoming: incoming ?? this.incoming,
+      outgoing: outgoing ?? this.outgoing,
     );
   }
 
   bool get isEmpty => this == MyUser.empty;
 
-  bool get isNotEmpyt => this != MyUser.empty;
+  bool get isNotEmpty => this != MyUser.empty;
 
   MyUserEntity toEntity() {
     return MyUserEntity(
@@ -126,6 +142,9 @@ class MyUser extends Equatable {
       instagram: instagram,
       facebook: facebook,
       twitter: twitter,
+      buddies: buddies,
+      incoming: incoming,
+      outgoing: outgoing,
     );
   }
 
@@ -148,6 +167,38 @@ class MyUser extends Equatable {
       instagram: entity.instagram,
       facebook: entity.facebook,
       twitter: entity.twitter,
+      buddies: entity.buddies,
+      incoming: entity.incoming,
+      outgoing: entity.outgoing,
+    );
+  }
+
+  static MyUser fromSnapshot(DocumentSnapshot snapshot) {
+    final data = snapshot.data() as Map<String, dynamic>;
+
+    return MyUser(
+      id: snapshot.id,
+      email: data['email'] ?? '',
+      name: data['name'] ?? '',
+      age: data['age'],
+      picture: data['picture'],
+      gym: data['gym'] != null
+          ? Gym.fromMap(data['gym'])
+          : null, // Assuming Gym has a fromMap method
+      gender: data['gender'],
+      grade: data['grade'],
+      description: data['description'],
+      searchGradeLow: data['searchGradeLow'],
+      searchGradeHigh: data['searchGradeHigh'],
+      searchGender: List<String>.from(data['searchGender'] ?? []),
+      searchAgeLow: data['searchAgeLow'],
+      searchAgeHigh: data['searchAgeHigh'],
+      instagram: data['instagram'],
+      facebook: data['facebook'],
+      twitter: data['twitter'],
+      buddies: List<String>.from(data['buddies'] ?? []),
+      incoming: List<String>.from(data['incoming'] ?? []),
+      outgoing: List<String>.from(data['outgoing'] ?? []),
     );
   }
 
@@ -170,5 +221,8 @@ class MyUser extends Equatable {
         instagram,
         facebook,
         twitter,
+        buddies,
+        incoming,
+        outgoing,
       ];
 }

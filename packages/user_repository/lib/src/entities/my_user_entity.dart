@@ -19,6 +19,9 @@ class MyUserEntity extends Equatable {
   final String? instagram;
   final String? facebook;
   final String? twitter;
+  final List<String>? buddies;
+  final List<String>? incoming;
+  final List<String>? outgoing;
 
   const MyUserEntity({
     required this.id,
@@ -38,6 +41,9 @@ class MyUserEntity extends Equatable {
     this.instagram,
     this.facebook,
     this.twitter,
+    this.buddies,
+    this.incoming,
+    this.outgoing,
   });
 
   Map<String, Object?> toDocument() {
@@ -61,6 +67,9 @@ class MyUserEntity extends Equatable {
       'instagram': instagram,
       'facebook': facebook,
       'twitter': twitter,
+      'buddies': buddies,
+      'incoming': incoming,
+      'outgoing': outgoing,
     };
   }
 
@@ -68,6 +77,18 @@ class MyUserEntity extends Equatable {
     List<dynamic>? searchGenderDynamic = doc['searchGender'];
     List<String>? searchGender =
         searchGenderDynamic?.map((value) => value as String).toList();
+
+    List<dynamic>? buddiesDynamic = doc['buddies'];
+    List<String>? buddies =
+        buddiesDynamic?.map((value) => value as String).toList();
+
+    List<dynamic>? incomingDynamic = doc['incoming'];
+    List<String>? incoming =
+        incomingDynamic?.map((value) => value as String).toList();
+
+    List<dynamic>? outgoingDynamic = doc['outgoing'];
+    List<String>? outgoing =
+        outgoingDynamic?.map((value) => value as String).toList();
 
     return MyUserEntity(
       id: doc['id'] as String,
@@ -89,6 +110,9 @@ class MyUserEntity extends Equatable {
       instagram: doc['instagram'] as String?,
       facebook: doc['facebook'] as String?,
       twitter: doc['twitter'] as String?,
+      buddies: buddies,
+      incoming: incoming,
+      outgoing: outgoing,
     );
   }
 
@@ -111,6 +135,9 @@ class MyUserEntity extends Equatable {
         instagram,
         facebook,
         twitter,
+        buddies,
+        incoming,
+        outgoing,
       ];
 
   @override
@@ -132,6 +159,9 @@ class MyUserEntity extends Equatable {
       instagam: $instagram
       facebook: $facebook
       twitter: $twitter
+      buddies: ${buddies.toString()}
+      incoming: ${incoming.toString()}
+      outgoing: ${outgoing.toString()}
     }''';
   }
 }

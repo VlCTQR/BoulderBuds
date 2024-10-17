@@ -36,6 +36,66 @@ class UpdateUserInfo extends UpdateUserInfoEvent {
   List<Object> get props => [myUser];
 }
 
+class AddBuddy extends UpdateUserInfoEvent {
+  final MyUser myUser;
+  final String buddyId;
+
+  const AddBuddy(this.myUser, this.buddyId);
+
+  @override
+  List<Object> get props => [myUser, buddyId];
+}
+
+class AddOutgoingRequest extends UpdateUserInfoEvent {
+  final MyUser myUser;
+  final String userToInviteId;
+
+  const AddOutgoingRequest(this.myUser, this.userToInviteId);
+
+  @override
+  List<Object> get props => [myUser, userToInviteId];
+}
+
+class AddIncomingRequest extends UpdateUserInfoEvent {
+  final MyUser myUser;
+  final String userId;
+
+  const AddIncomingRequest(this.myUser, this.userId);
+
+  @override
+  List<Object> get props => [myUser, userId];
+}
+
+class RemoveBuddy extends UpdateUserInfoEvent {
+  final MyUser myUser;
+  final String userId;
+
+  const RemoveBuddy(this.myUser, this.userId);
+
+  @override
+  List<Object> get props => [myUser, userId];
+}
+
+class RemoveOutgoingRequest extends UpdateUserInfoEvent {
+  final MyUser myUser;
+  final String userId;
+
+  const RemoveOutgoingRequest(this.myUser, this.userId);
+
+  @override
+  List<Object> get props => [myUser, userId];
+}
+
+class RemoveIncomingRequest extends UpdateUserInfoEvent {
+  final MyUser myUser;
+  final String userId;
+
+  const RemoveIncomingRequest(this.myUser, this.userId);
+
+  @override
+  List<Object> get props => [myUser, userId];
+}
+
 class DeleteUser extends UpdateUserInfoEvent {
   final MyUser myUser;
 

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:boulderbuds/blocs/get_users_bloc/get_users_bloc.dart';
@@ -5,8 +6,11 @@ import 'package:boulderbuds/blocs/my_user_bloc/my_user_bloc.dart';
 import 'package:boulderbuds/blocs/sign_in_bloc/sign_in_bloc.dart';
 import 'package:boulderbuds/blocs/update_user_info_bloc/update_user_info_bloc.dart';
 import 'package:boulderbuds/screens/account%20setup/account_setup_screen.dart';
+import 'package:boulderbuds/screens/home/buddies_content.dart';
 import 'package:boulderbuds/screens/home/buddy_preferences_edit_widget.dart';
 import 'package:boulderbuds/screens/home/buddy_preferences_widget.dart';
+import 'package:boulderbuds/screens/home/home_content.dart';
+import 'package:boulderbuds/screens/home/incoming_content.dart';
 import 'package:boulderbuds/screens/home/user_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -17,17 +21,41 @@ import 'package:user_repository/user_repository.dart';
 import 'package:image_cropper/image_cropper.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  final int selectedIndex;
+  final String currentUserId;
+
+  const HomeScreen(
+      {Key? key, required this.selectedIndex, required this.currentUserId})
+      : super(key: key);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  late int _selectedIndex;
+  StreamSubscription<List<MyUser>>? _userSubscription;
+  MyUser? currentUser;
+  bool isSubscribed = false;
+
+  // List of pages corresponding to each tab
+  final List<Widget> _pages = [
+    const HomeContent(),
+    const BuddiesContent(),
+    const IncomingContent(),
+  ];
+
   @override
   void initState() {
     super.initState();
-    context.read<GetUsersBloc>().add(GetUsers());
+    _selectedIndex = widget.selectedIndex;
+    context.read<MyUserBloc>().add(GetMyUser(myUserId: widget.currentUserId));
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
   }
 
   @override
@@ -43,6 +71,9 @@ class _HomeScreenState extends State<HomeScreen> {
       child: BlocBuilder<MyUserBloc, MyUserState>(
         builder: (context, state) {
           if (state.status == MyUserStatus.success) {
+            currentUser = state.user!;
+            // log(currentUserId);
+
             return Scaffold(
               appBar: AppBar(
                 elevation: 0,
@@ -51,6 +82,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 title: BlocBuilder<MyUserBloc, MyUserState>(
                   builder: (context, state) {
                     if (state.status == MyUserStatus.success) {
+                      currentUser = state.user!;
+                      // log(currentUserId);
+
                       return Row(
                         children: [
                           GestureDetector(
@@ -109,7 +143,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           const SizedBox(width: 10),
                           Text(
-                            "Welcome ${state.user!.name.split(' ')[0].length > 10 ? state.user!.name.split(' ')[0].substring(0, 10) + '...' : state.user!.name.split(' ')[0]}",
+                            "Welcome ${state.user!.name.split(' ')[0].length > 10 ? '${state.user!.name.split(' ')[0].substring(0, 10)}...' : state.user!.name.split(' ')[0]}",
                             style: TextStyle(
                               color: Theme.of(context).colorScheme.onBackground,
                             ),
@@ -120,231 +154,82 @@ class _HomeScreenState extends State<HomeScreen> {
                     return const CircularProgressIndicator();
                   },
                 ),
-                // actions: [
-                //   IconButton(
-                //     onPressed: () {
-                //       context.read<SignInBloc>().add(const SignOutRequired());
-                //     },
-                //     icon: Icon(
-                //       CupertinoIcons.square_arrow_right,
-                //       color: Theme.of(context).colorScheme.onBackground,
-                //     ),
-                //   ),
-                //   IconButton(
-                //     onPressed: () {
-                //       Navigator.push(
-                //         context,
-                //         MaterialPageRoute<void>(
-                //           builder: (BuildContext context) =>
-                //               BlocProvider<UpdateUserInfoBloc>(
-                //             create: (context) => UpdateUserInfoBloc(
-                //                 userRepository: FirebaseUserRepository()),
-                //             child: AccountSetupScreen(
-                //               title: "Your Profile",
-                //               myUser: state.user!,
-                //               userRepository: FirebaseUserRepository(),
-                //             ),
-                //           ),
-                //         ),
-                //       );
-                //     },
-                //     icon: Icon(
-                //       Icons.settings,
-                //       color: Theme.of(context).colorScheme.onBackground,
-                //     ),
-                //   ),
-                // ],
               ),
-              body: Column(
-                children: [
-                  const SizedBox(height: 10),
-                  GestureDetector(
-                    onTap: () {
-                      showModalBottomSheet(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return Container(
-                            height: MediaQuery.of(context).size.height,
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.tertiary,
-                              borderRadius: const BorderRadius.only(
-                                topLeft: Radius.circular(20),
-                                topRight: Radius.circular(20),
-                              ),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Colors.black26,
-                                  offset: Offset(0, -2),
-                                  blurRadius: 6.0,
+              body: IndexedStack(
+                index: _selectedIndex,
+                children: _pages,
+              ),
+              bottomNavigationBar: Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20),
+                  ),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black26,
+                      offset: Offset(0, -2),
+                      blurRadius: 6.0,
+                    ),
+                  ],
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: BottomNavigationBar(
+                    items: <BottomNavigationBarItem>[
+                      const BottomNavigationBarItem(
+                        icon: Icon(Icons.search),
+                        label: 'Search',
+                      ),
+                      const BottomNavigationBarItem(
+                        icon: Icon(Icons.group),
+                        label: 'Buddies',
+                      ),
+                      BottomNavigationBarItem(
+                        icon: Stack(
+                          children: <Widget>[
+                            const Icon(Icons.notifications),
+                            if (state.user!.incoming != null &&
+                                state.user!.incoming!
+                                    .isNotEmpty) // Only show badge if incoming requests are present
+                              Positioned(
+                                right: 0,
+                                top: 0,
+                                child: Container(
+                                  padding: const EdgeInsets.all(2),
+                                  decoration: BoxDecoration(
+                                    color: Colors.red,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  constraints: const BoxConstraints(
+                                    minWidth: 16,
+                                    minHeight: 16,
+                                  ),
+                                  child: Text(
+                                    '${currentUser?.incoming?.length ?? 0}',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
                                 ),
-                              ],
-                            ),
-                            child: BlocProvider<UpdateUserInfoBloc>(
-                              create: (context) => UpdateUserInfoBloc(
-                                  userRepository: FirebaseUserRepository()),
-                              child: BuddyPreferencesEditWidget(
-                                myUser: state.user!,
-                                userRepository: FirebaseUserRepository(),
                               ),
-                            ),
-                          );
-                        },
-                      );
-                    },
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Spacer(),
-                        BuddyPreferencesWidget(myUser: state.user!),
-                        Expanded(
-                          child: Icon(
-                            Icons.tune,
-                            size: 35,
-                            color: Theme.of(context).colorScheme.onBackground,
-                          ),
+                          ],
                         ),
-                      ],
-                    ),
+                        label: 'Incoming',
+                      ),
+                    ],
+                    currentIndex: _selectedIndex,
+                    selectedItemColor: Colors.white,
+                    unselectedItemColor: Colors.grey,
+                    onTap: _onItemTapped,
+                    backgroundColor: Colors.transparent,
+                    elevation: 0,
                   ),
-                  const SizedBox(height: 10),
-                  Flexible(
-                    child: BlocBuilder<GetUsersBloc, GetUsersState>(
-                      builder: (context, usersState) {
-                        final currentUser = state.user!;
-                        log(currentUser.toString());
-
-                        if (usersState is GetUsersSuccess) {
-                          final users = usersState.users.where((user) {
-                            //Remove currentUser from list
-                            if (user.id == currentUser.id) {
-                              return false;
-                            }
-
-                            //Filter on gym
-                            if (user.gym != currentUser.gym) {
-                              return false;
-                            }
-
-                            //Filter on gender Current User
-                            if (!currentUser.searchGender!.contains('a') &&
-                                currentUser.searchGender!.isNotEmpty) {
-                              //If doesn't contain "All"
-                              if (!currentUser
-                                  .searchGender! //If user.gender not in searchGender list
-                                  .contains(user.gender)) {
-                                return false;
-                              }
-                            }
-
-                            //Filter on gender User
-                            if (!user.searchGender!.contains('a') &&
-                                user.searchGender!.isNotEmpty) {
-                              //If doesn't contain "All"
-                              if (!user
-                                  .searchGender! //If currentUser.gender not in searchGender list
-                                  .contains(currentUser.gender)) {
-                                return false;
-                              }
-                            }
-
-                            //Filter on age Current User
-                            if (currentUser.searchAgeLow != 0 &&
-                                currentUser.searchAgeHigh != 0) {
-                              //If both zero -> all ages
-                              if (currentUser.searchAgeLow! > user.age!) {
-                                //Als searchAgeLow groter is dan user.age | dus stel age range is 17-22 en user.age is 15 dan return false
-                                return false;
-                              }
-                              if (currentUser.searchAgeHigh! < user.age!) {
-                                //Als searchAgeHigh kleiner is dan user.age | dus stel age range is 17-22 en user.age is 23 dan return false
-                                return false;
-                              }
-                            }
-
-                            //Filter on age User
-                            if (user.searchAgeLow != 0 &&
-                                user.searchAgeHigh != 0) {
-                              //If both zero -> all ages
-                              if (user.searchAgeLow! > currentUser.age!) {
-                                //Als searchAgeLow groter is dan user.age | dus stel age range is 17-22 en user.age is 15 dan return false
-                                return false;
-                              }
-                              if (user.searchAgeHigh! < currentUser.age!) {
-                                //Als searchAgeHigh kleiner is dan user.age | dus stel age range is 17-22 en user.age is 23 dan return false
-                                return false;
-                              }
-                            }
-
-                            // Converteer de grade van andere users naar int
-                            int? userGrade =
-                                user.grade != null && user.grade!.isNotEmpty
-                                    ? int.tryParse(user.grade![0])
-                                    : null;
-
-                            // Filter op basis van grade Current User
-                            // Als searchGradeLow en searchGradeHigh beide 0 zijn, accepteer dan alle grades
-                            if (currentUser.searchGradeLow == 0 &&
-                                currentUser.searchGradeHigh == 0) {
-                              return true;
-                            }
-
-                            if ((currentUser.searchGradeLow != null &&
-                                    (userGrade == null ||
-                                        userGrade <
-                                            currentUser.searchGradeLow!)) ||
-                                (currentUser.searchGradeHigh != null &&
-                                    (userGrade == null ||
-                                        userGrade >
-                                            currentUser.searchGradeHigh!))) {
-                              return false;
-                            }
-
-                            // Converteer de grade van Current User naar int
-                            int? currentUserGrade = currentUser.grade != null &&
-                                    currentUser.grade!.isNotEmpty
-                                ? int.tryParse(currentUser.grade![0])
-                                : null;
-
-                            // Filter op basis van grade User
-                            // Als searchGradeLow en searchGradeHigh beide 0 zijn, accepteer dan alle grades
-                            if (user.searchGradeLow == 0 &&
-                                user.searchGradeHigh == 0) {
-                              return true;
-                            }
-
-                            if ((user.searchGradeLow != null &&
-                                    (currentUserGrade == null ||
-                                        currentUserGrade <
-                                            user.searchGradeLow!)) ||
-                                (user.searchGradeHigh != null &&
-                                    (currentUserGrade == null ||
-                                        currentUserGrade >
-                                            user.searchGradeHigh!))) {
-                              return false;
-                            }
-
-                            return true;
-                          }).toList();
-                          return ListView.builder(
-                            itemCount: users.length,
-                            itemBuilder: (context, index) {
-                              final user = users[index];
-                              return Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: UserWidget(myUser: user),
-                              );
-                            },
-                          );
-                        } else {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        }
-                      },
-                    ),
-                  ),
-                ],
+                ),
               ),
             );
           }

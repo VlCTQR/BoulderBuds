@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:image_picker/image_picker.dart';
@@ -39,6 +41,66 @@ class UpdateUserInfoBloc
       emit(UploadUserDataLoading());
       try {
         _userRepository.setUserData(event.myUser);
+        emit(UploadUserDataSuccess(event.myUser));
+      } catch (e) {
+        emit(UploadUserDataFailure());
+      }
+    });
+
+    on<AddBuddy>((event, emit) async {
+      emit(UploadUserDataLoading());
+      try {
+        _userRepository.addBuddy(event.myUser, event.buddyId);
+        emit(UploadUserDataSuccess(event.myUser));
+      } catch (e) {
+        emit(UploadUserDataFailure());
+      }
+    });
+
+    on<AddOutgoingRequest>((event, emit) async {
+      emit(UploadUserDataLoading());
+      try {
+        _userRepository.addOutgoingRequest(event.myUser, event.userToInviteId);
+        emit(UploadUserDataSuccess(event.myUser));
+      } catch (e) {
+        emit(UploadUserDataFailure());
+      }
+    });
+
+    on<AddIncomingRequest>((event, emit) async {
+      emit(UploadUserDataLoading());
+      try {
+        _userRepository.addIncomingRequest(event.myUser, event.userId);
+        emit(UploadUserDataSuccess(event.myUser));
+      } catch (e) {
+        emit(UploadUserDataFailure());
+      }
+    });
+
+    on<RemoveBuddy>((event, emit) async {
+      emit(UploadUserDataLoading());
+      try {
+        _userRepository.removeBuddy(event.myUser, event.userId);
+        emit(UploadUserDataSuccess(event.myUser));
+      } catch (e) {
+        emit(UploadUserDataFailure());
+      }
+    });
+
+    on<RemoveOutgoingRequest>((event, emit) async {
+      emit(UploadUserDataLoading());
+      try {
+        _userRepository.removeOutgoingRequest(event.myUser, event.userId);
+        emit(UploadUserDataSuccess(event.myUser));
+      } catch (e) {
+        emit(UploadUserDataFailure());
+      }
+    });
+
+    on<RemoveIncomingRequest>((event, emit) async {
+      emit(UploadUserDataLoading());
+      try {
+        _userRepository.removeIncomingRequest(event.myUser, event.userId);
         emit(UploadUserDataSuccess(event.myUser));
       } catch (e) {
         emit(UploadUserDataFailure());

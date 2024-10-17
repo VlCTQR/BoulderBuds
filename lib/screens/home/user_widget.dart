@@ -1,14 +1,19 @@
 import 'dart:developer';
 
+import 'package:boulderbuds/blocs/sign_in_bloc/sign_in_bloc.dart';
+import 'package:boulderbuds/blocs/update_user_info_bloc/update_user_info_bloc.dart';
 import 'package:boulderbuds/screens/user/user_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:user_repository/user_repository.dart';
 
 class UserWidget extends StatelessWidget {
   final MyUser myUser;
+  final MyUser currentUser;
 
-  const UserWidget({Key? key, required this.myUser}) : super(key: key);
+  const UserWidget({Key? key, required this.myUser, required this.currentUser})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -16,8 +21,23 @@ class UserWidget extends StatelessWidget {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(
-              builder: (BuildContext context) => UserScreen(myUser: myUser)),
+          // MaterialPageRoute(
+          //     builder: (BuildContext context) => UserScreen(myUser: myUser)),
+          MaterialPageRoute<void>(
+            builder: (BuildContext context) => BlocProvider<UpdateUserInfoBloc>(
+              create: (context) =>
+                  UpdateUserInfoBloc(userRepository: FirebaseUserRepository()),
+              child: BlocProvider(
+                create: (context) =>
+                    SignInBloc(userRepository: FirebaseUserRepository()),
+                child: UserScreen(
+                  myUser: myUser,
+                  currentUser: currentUser,
+                  userRepository: FirebaseUserRepository(),
+                ),
+              ),
+            ),
+          ),
         );
       },
       child: Card(

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 
@@ -11,12 +12,47 @@ import 'package:image_picker/image_picker.dart';
 import 'user_repo.dart';
 
 class FirebaseUserRepository implements UserRepository {
+  final FirebaseAuth _firebaseAuth;
+  final CollectionReference usersCollection =
+      FirebaseFirestore.instance.collection('users');
+  StreamSubscription<QuerySnapshot>? _userCollectionSubscription;
+
   FirebaseUserRepository({
     FirebaseAuth? firebaseAuth,
   }) : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance;
 
-  final FirebaseAuth _firebaseAuth;
-  final usersCollection = FirebaseFirestore.instance.collection('users');
+  // Start listening to Firestore updates for the users collection
+  void startListeningToUsersCollection() {
+    _userCollectionSubscription =
+        usersCollection.snapshots().listen((snapshot) {
+      for (var change in snapshot.docChanges) {
+        if (change.type == DocumentChangeType.added) {
+          log("User added: ${change.doc.id}");
+        } else if (change.type == DocumentChangeType.modified) {
+          log("User modified: ${change.doc.id}");
+        } else if (change.type == DocumentChangeType.removed) {
+          log("User removed: ${change.doc.id}");
+        }
+      }
+      // Here you can notify listeners or update the local state if needed
+    });
+  }
+
+  // Stop listening to updates
+  void stopListeningToUsersCollection() {
+    _userCollectionSubscription?.cancel();
+    log("Stopped listening to users collection.");
+  }
+
+  @override
+  Stream<List<MyUser>> getUsersCollectionStream() {
+    return usersCollection.snapshots().map((snapshot) {
+      return snapshot.docs.map((doc) {
+        return MyUser.fromEntity(
+            MyUserEntity.fromDocument(doc.data() as Map<String, dynamic>));
+      }).toList();
+    });
+  }
 
   // Stream of [MyUser] which will emit the current user when
   // the authentication state changes.
@@ -31,11 +67,13 @@ class FirebaseUserRepository implements UserRepository {
   }
 
   @override
-  Future<List<MyUser>> getMyUsers() {
+  Future<List<MyUser>> getMyUsers() async {
     try {
-      return usersCollection.get().then((value) => value.docs
-          .map((e) => MyUser.fromEntity(MyUserEntity.fromDocument(e.data())))
-          .toList());
+      QuerySnapshot snapshot = await usersCollection.get();
+      return snapshot.docs
+          .map((doc) => MyUser.fromEntity(
+              MyUserEntity.fromDocument(doc.data() as Map<String, dynamic>)))
+          .toList();
     } catch (e) {
       log(e.toString());
       rethrow;
@@ -117,10 +155,112 @@ class FirebaseUserRepository implements UserRepository {
   }
 
   @override
+  Future<MyUser> addBuddy(MyUser user, String buddyId) async {
+    try {
+      await usersCollection.doc(user.id).update({
+        'buddies': FieldValue.arrayUnion([buddyId])
+      });
+      DocumentSnapshot updatedUserSnapshot =
+          await usersCollection.doc(user.id).get();
+      MyUser updatedUser = MyUser.fromSnapshot(updatedUserSnapshot);
+      return updatedUser;
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
+  @override
+  Future<MyUser> addOutgoingRequest(MyUser user, String userToInviteId) async {
+    try {
+      await usersCollection.doc(user.id).update({
+        'outgoing': FieldValue.arrayUnion([userToInviteId])
+      });
+      DocumentSnapshot updatedUserSnapshot =
+          await usersCollection.doc(user.id).get();
+      MyUser updatedUser = MyUser.fromSnapshot(updatedUserSnapshot);
+      return updatedUser;
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
+  @override
+  Future<MyUser> addIncomingRequest(MyUser user, String userId) async {
+    try {
+      await usersCollection.doc(user.id).update({
+        'incoming': FieldValue.arrayUnion([userId])
+      });
+      DocumentSnapshot updatedUserSnapshot =
+          await usersCollection.doc(user.id).get();
+      MyUser updatedUser = MyUser.fromSnapshot(updatedUserSnapshot);
+      return updatedUser;
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
+  @override
+  Future<MyUser> removeBuddy(MyUser user, String buddyIdToDelete) async {
+    try {
+      await usersCollection.doc(user.id).update({
+        'buddies': FieldValue.arrayRemove([buddyIdToDelete])
+      });
+      DocumentSnapshot updatedUserSnapshot =
+          await usersCollection.doc(user.id).get();
+      MyUser updatedUser = MyUser.fromSnapshot(updatedUserSnapshot);
+
+      return updatedUser;
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
+  @override
+  Future<MyUser> removeOutgoingRequest(
+      MyUser user, String userIdToDelete) async {
+    try {
+      await usersCollection.doc(user.id).update({
+        'outgoing': FieldValue.arrayRemove([userIdToDelete])
+      });
+      DocumentSnapshot updatedUserSnapshot =
+          await usersCollection.doc(user.id).get();
+      MyUser updatedUser = MyUser.fromSnapshot(updatedUserSnapshot);
+
+      return updatedUser;
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
+  @override
+  Future<MyUser> removeIncomingRequest(
+      MyUser userInvited, String userIdToDelete) async {
+    try {
+      await usersCollection.doc(userInvited.id).update({
+        'incoming': FieldValue.arrayRemove([userIdToDelete])
+      });
+      DocumentSnapshot updatedUserSnapshot =
+          await usersCollection.doc(userInvited.id).get();
+      MyUser updatedUser = MyUser.fromSnapshot(updatedUserSnapshot);
+
+      return updatedUser;
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
+
+  @override
   Future<MyUser> getMyUser(String myUserId) async {
     try {
       return usersCollection.doc(myUserId).get().then((value) =>
-          MyUser.fromEntity(MyUserEntity.fromDocument(value.data()!)));
+          MyUser.fromEntity(
+              MyUserEntity.fromDocument(value.data() as Map<String, dynamic>)));
     } catch (e) {
       log(e.toString());
       rethrow;
